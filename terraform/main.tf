@@ -10,18 +10,31 @@ terraform {
 }
 
 provider "aws" {
-  region = "eu-west-1"
+  region = "eu-north-1"
 }
 
 
 resource "aws_instance" "nginx-node" {
-  ami                    = "ami-038494630aa32ef56"
+  ami                    = "ami-07e5795ae42ba2fb2"
   instance_type          = "t3.micro"
-  subnet_id              = "subnet-060ba13bd6800a0db"
-  vpc_security_group_ids = ["sg-090804d4ff518079d"]
-  key_name               = "MasterClass2025"
+  subnet_id              = "subnet-08cc6a7a9b660d73e"
+  vpc_security_group_ids = ["sg-03e79c22dc0a1f610"]
+  key_name               = "masterdevop"
 
   tags = {
     Name = "terraform-nginx-node"
+  }
+}
+
+
+resource "aws_instance" "python-node" {
+  ami                    = "ami-0e319259454f464e6"
+  instance_type          = "t3.micro"
+  subnet_id              = "subnet-08cc6a7a9b660d73e"
+  vpc_security_group_ids = ["sg-03e79c22dc0a1f610"]
+  key_name               = "masterdevop"
+
+  tags = {
+    Name = "terraform-python-node"
   }
 }
