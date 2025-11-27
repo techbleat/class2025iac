@@ -15,7 +15,7 @@ provider "aws" {
 
 
 resource "aws_instance" "nginx-node" {
-  ami                    = "ami-07e5795ae42ba2fb2"
+  ami                    = "ami-02779020ade3dd357"
   instance_type          = "t3.micro"
   subnet_id              = "subnet-08cc6a7a9b660d73e"
   vpc_security_group_ids = ["sg-03e79c22dc0a1f610"]
@@ -28,7 +28,7 @@ resource "aws_instance" "nginx-node" {
 
 
 resource "aws_instance" "python-node" {
-  ami                    = "ami-0e319259454f464e6"
+  ami                    = "ami-0554acd16e37accc7"
   instance_type          = "t3.micro"
   subnet_id              = "subnet-08cc6a7a9b660d73e"
   vpc_security_group_ids = ["sg-03e79c22dc0a1f610"]
@@ -40,7 +40,7 @@ resource "aws_instance" "python-node" {
 }
 
 resource "aws_instance" "java-node" {
-  ami                    = "ami-0e319259454f464e6"
+  ami                    = "ami-0c28ddb2572e5fc91"
   instance_type          = "t3.micro"
   subnet_id              = "subnet-08cc6a7a9b660d73e"
   vpc_security_group_ids = ["sg-03e79c22dc0a1f610"]
