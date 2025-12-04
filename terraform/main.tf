@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket  = "techbleat-cicd-state-bucket"
+    bucket  = "techbleat-cicd-state-bucket-week-7"
     key     = "envs/dev/terraform.tfstate"
     region  = "eu-north-1"
     encrypt = true
