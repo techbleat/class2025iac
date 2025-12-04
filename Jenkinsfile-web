@@ -8,11 +8,13 @@ pipeline {
         }
         
         stage ('build') {
-            sshagent (credentials: ['master-key']) {
-                sh """
-                    ssh -o StrictHostKeyChecking=no ec2-user@172.31.9.65 'sudo yum install git -y; sudo yum install nginx -y; sudo systemctl start nginx; sudo systemctl enable nginx;'
-                """
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@172.31.9.65 'sudo yum install git -y; sudo yum install nginx -y; sudo systemctl start nginx; sudo systemctl enable nginx;'
+                    """
+                }
             }
-        }
+            }
     }
 }
