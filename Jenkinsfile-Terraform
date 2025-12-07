@@ -45,7 +45,7 @@ pipeline {
             }
             steps {
                 dir ('terraform') {
-                    sh ' terraform plan'
+                    sh ' terraform plan -var-file="dev.tfvars"'
                 }
             }
         } 
@@ -56,7 +56,7 @@ pipeline {
             }
             steps {
                 dir ('terraform') {
-                    sh ' terraform apply -auto-approve'
+                    sh ' terraform apply -var-file="dev.tfvars" -auto-approve'
                 }
             }
         } 
@@ -67,7 +67,7 @@ pipeline {
             }
             steps {
                 dir ('terraform') {
-                    sh ' terraform destroy -auto-approve'
+                    sh ' terraform destroy -var-file="dev.tfvars"  -auto-approve'
                 }
             }
         } 
