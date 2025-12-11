@@ -1,0 +1,30 @@
+pipeline {
+    agent any 
+    stages {
+        stage ('checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage ('build') {
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@172.31.9.65 'sudo yum install git -y; sudo yum install nginx -y; sudo systemctl start nginx; sudo systemctl enable nginx;'
+                    """
+                }
+            }
+            }
+        
+        stage ('deploy fruits and vegetables website') {
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@172.31.9.65 'sudo rm -rf fruits-veg_market; git clone https://github.com/albert85/fruits-veg_market.git; cd fruits-veg_market; sudo cp web/index.html /usr/share/nginx/html/; sudo systemctl restart nginx;'
+                    """
+                }
+            }
+            }
+    }
+}

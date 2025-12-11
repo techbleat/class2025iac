@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket  = "techbleat-cicd-state-bucket"
+    bucket  = "techbleat-cicd-state-bucket-week-7"
     key     = "envs/dev/terraform.tfstate"
-    region  = "eu-west-1"
+    region  = "eu-north-1"
     encrypt = true
 
   }
@@ -17,7 +17,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "eu-west-1"
+  region = "eu-north-1"
 }
 
 # -------------------------
@@ -140,6 +140,65 @@ resource "aws_instance" "python-node" {
   }
 }
 
+# Java backend setup
+
+resource "aws_security_group" "java_sg" {
+
+  name        = "java-sg"
+  description = "Allow SSH and Port 9090  inbound, all outbound"
+  vpc_id      = "vpc-0981ae2afd0146876"
+
+
+  # inbound SSH
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # inbound 9090 (app)
+  ingress {
+    description = "Python App port 9090"
+    from_port   = 9090
+    to_port     = 9090
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "java-app-security_group"
+  }
+
+}
+
+#-------------------------
+# Java EC2 Instance
+# ------------------------
+
+
+resource "aws_instance" "java-node" {
+  ami                    = "ami-0f50f13aefb6c0a5d"
+  instance_type          = "t3.micro"
+  subnet_id              = "subnet-08cc6a7a9b660d73e"
+  vpc_security_group_ids = [aws_security_group.java_sg.id]
+  key_name               = "devop-keypair"
+
+  tags = {
+    Name = "java-node"
+  }
+}
+
 
 #--------------------------------
 # Outputs - Public (external) IPs
@@ -154,4 +213,9 @@ output "web_node_ip" {
 output "python_node_ip" {
   description = " Public IP"
   value  = aws_instance.python-node.public_ip
+}
+
+output "java_node_ip" {
+  description = " Public IP"
+  value  = aws_instance.java-node.public_ip
 }
