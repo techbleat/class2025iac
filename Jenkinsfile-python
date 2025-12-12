@@ -38,8 +38,9 @@ pipeline {
                         source .venv/bin/activate;
                         pip install -r requirements.txt;
                         deactivate;
-                        sudo cp fruit.service /etc/systemd/system/python-fruit.service; 
-                        sudo systemctl daemon-reload;'
+                        sudo cp fruit.service /etc/systemd/system/python_fruit.service; 
+                        sudo systemctl daemon-reload;
+                        sudo systemctl start python_fruit.service;'
                     """
                 }
             }

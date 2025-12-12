@@ -35,8 +35,9 @@ pipeline {
                         sudo rm -rf fruits-veg_market; 
                         git clone https://github.com/albert85/fruits-veg_market.git; 
                         cd fruits-veg_market/java; 
-                        sudo cp fruit.service /etc/systemd/system/java-fruit.service; 
-                        sudo systemctl daemon-reload;'
+                        sudo cp fruit.service /etc/systemd/system/java_fruit.service; 
+                        sudo systemctl daemon-reload;
+                        sudo systemctl start java_fruit.service;'
                     """
                 }
             }
