@@ -37,7 +37,7 @@ pipeline {
                         cd fruits-veg_market/java; 
                         sudo cp fruit.service /etc/systemd/system/java_fruit.service; 
                         sudo systemctl daemon-reload;
-                        sudo systemctl start java_fruit.service;'
+                        sudo systemctl restart java_fruit.service;'
                     """
                 }
             }

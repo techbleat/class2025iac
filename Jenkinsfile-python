@@ -40,7 +40,7 @@ pipeline {
                         deactivate;
                         sudo cp fruit.service /etc/systemd/system/python_fruit.service; 
                         sudo systemctl daemon-reload;
-                        sudo systemctl start python_fruit.service;'
+                        sudo systemctl restart python_fruit.service;'
                     """
                 }
             }
