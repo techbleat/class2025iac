@@ -47,8 +47,8 @@ pipeline {
                         sudo rm -rf fruits-veg_market;
                         git clone https://github.com/albert85/fruits-veg_market.git; 
                         cd fruits-veg_market;
-                        sed "FRUITS_SERVER_IP" "${params.FRUITS_SERVER_IP}" -i web/index.html;
-                        sed "VEG_SERVER_IP" "${params.VEG_SERVER_PUBLIC_ID}" -i web/index.html;
+                        sed 's/FRUITS_SERVER_IP/${params.FRUITS_SERVER_IP}/g' -i web/index.html;
+                        sed 's/VEG_SERVER_IP/${params.VEG_SERVER_PUBLIC_ID}/g' -i web/index.html;
                         sudo cp web/index.html /usr/share/nginx/html/; 
                         sudo systemctl restart nginx;'
                     """
