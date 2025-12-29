@@ -1,0 +1,48 @@
+pipeline {
+    agent any 
+    parameters {
+        string (
+            name: 'PYTHON_SERVER_IP',
+            defaultValue: '172.31.9.65',
+            description: 'IP of the target server'
+        )
+    }
+    stages {
+        stage ('checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage ('build') {
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${params.PYTHON_SERVER_IP} '
+                        sudo yum install git -y; 
+                        sudo yum install python3 -y;'
+                    """
+                }
+            }
+            }
+        
+        stage ('deploy python service') {
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${params.PYTHON_SERVER_IP} '
+                        sudo rm -rf fruits-veg_market; 
+                        git clone https://github.com/albert85/fruits-veg_market.git; 
+                        cd fruits-veg_market/python;
+                        python3 -m venv .venv;
+                        source .venv/bin/activate;
+                        python -m pip install -r requirements.txt;
+                        sudo cp fruit.service /etc/systemd/system/python_fruit.service; 
+                        sudo systemctl daemon-reload;
+                        sudo systemctl restart python_fruit.service;'
+                    """
+                }
+            }
+            }
+    }
+}

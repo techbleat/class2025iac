@@ -1,20 +1,12 @@
 pipeline {
     agent any 
 
-
-    parameters {
-        choice (
-            name: 'TF_ACTION',
-            choices :['plan','apply', 'destroy'],
-            description: 'Select which Terraform action to run'
-        )
-    }
     
     environment {
         
         AWS_SECRET_ACCESS_KEY = credentials ('aws-secret-access-key')
         AWS_ACCESS_KEY_ID = credentials ('aws-access-key-id')
-        AWS_DEFAULT_REGION = 'eu-west-1'
+        AWS_DEFAULT_REGION = 'eu-north-1'
     }
     
     stages {
@@ -23,54 +15,29 @@ pipeline {
                 checkout scm
             }
         }
-        stage ('terraform init') {
+        stage ('packer init') {
             steps {
-                dir ('terraform') {
-                    sh ' terraform init -reconfigure'
+                dir ('packer') {
+                    sh ' packer init . '
                 }
             }
         }
 
-        stage ('terraform validate') {
+        stage ('packer validate') {
             steps {
-                dir ('terraform') {
-                    sh ' terraform validate'
+                dir ('packer') {
+                    sh ' packer validate .'
                 }
             }
         } 
         
-        stage ('terraform plan') {
-            when  {
-                expression { params.TF_ACTION == 'plan'}
-            }
+        stage ('packer build') {
             steps {
-                dir ('terraform') {
-                    sh ' terraform plan'
+                dir ('packer') {
+                    sh ' packer build .'
                 }
             }
-        } 
-
-        stage ('terraform apply') {
-         when  {
-                expression { params.TF_ACTION == 'apply'}
-            }
-            steps {
-                dir ('terraform') {
-                    sh ' terraform apply -auto-approve'
-                }
-            }
-        } 
-
-        stage ('terraform destroy') {
-         when  {
-                expression { params.TF_ACTION == 'destroy'}
-            }
-            steps {
-                dir ('terraform') {
-                    sh ' terraform destroy -auto-approve'
-                }
-            }
-        } 
+        }
     
     }
 }

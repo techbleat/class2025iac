@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+    parameters {
+        string (
+            name: 'FRUITS_SERVER_IP',
+            defaultValue: 'ec2-34-250-123-45.eu-north-1.compute.amazonaws.com',
+            description: 'IP of the target server'
+        )
+        string (
+            name: 'VEG_SERVER_PUBLIC_ID',
+            defaultValue: 'ec2-34-250-123-45.eu-north-1.compute.amazonaws.com',
+            description: 'Username of the target server'
+        )
+        string (
+            name: 'WEB_SERVER_IP',
+            defaultValue: '172.31.9.65',
+            description: 'IP of the target server'
+        )
+    }
+    stages {
+        stage ('checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage ('build') {
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${params.WEB_SERVER_IP} '
+                        sudo yum install git -y; 
+                        sudo yum install nginx -y; 
+                        sudo systemctl start nginx; 
+                        sudo systemctl enable nginx;'
+                    """
+                }
+            }
+            }
+        
+        stage ('deploy fruits and vegetables website') {
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${params.WEB_SERVER_IP} '
+                        cd ~; 
+                        sudo rm -rf fruits-veg_market;
+                        git clone https://github.com/albert85/fruits-veg_market.git; 
+                        cd fruits-veg_market;
+                        sed 's/FRUITS_SERVER_IP/${params.FRUITS_SERVER_IP}/g' -i web/index.html;
+                        sed 's/VEG_SERVER_IP/${params.VEG_SERVER_PUBLIC_ID}/g' -i web/index.html;
+                        sudo cp web/index.html /usr/share/nginx/html/; 
+                        sudo systemctl restart nginx;'
+                    """
+                }
+            }
+            }
+    }
+}

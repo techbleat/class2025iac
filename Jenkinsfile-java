@@ -1,0 +1,46 @@
+pipeline {
+    agent any 
+    parameters {
+        string (
+            name: 'JAVA_SERVER_IP',
+            defaultValue: '172.31.9.65',
+            description: 'IP of the target server'
+        )
+    }
+    stages {
+        stage ('checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage ('build') {
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${params.JAVA_SERVER_IP} '
+                        sudo yum install git -y; 
+                        sudo yum install java-17-amazon-corretto -y; 
+                        sudo yum install maven -y;'
+                    """
+                }
+            }
+            }
+        
+        stage ('deploy java service') {
+            steps{
+                sshagent (credentials: ['master-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${params.JAVA_SERVER_IP} '
+                        sudo rm -rf fruits-veg_market; 
+                        git clone https://github.com/albert85/fruits-veg_market.git; 
+                        cd fruits-veg_market/java; 
+                        sudo cp fruit.service /etc/systemd/system/java_fruit.service; 
+                        sudo systemctl daemon-reload;
+                        sudo systemctl restart java_fruit.service;'
+                    """
+                }
+            }
+            }
+    }
+}
