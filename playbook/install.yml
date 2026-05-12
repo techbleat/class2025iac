@@ -5,35 +5,44 @@
   gather_facts: true
 
   tasks:
+    # Ubuntu default site root is /var/www/html; Amazon Linux uses /usr/share/nginx/html
+    - name: Set nginx document root from OS family
+      ansible.builtin.set_fact:
+        nginx_html_root: >-
+          {{
+            '/var/www/html'
+            if ansible_os_family == 'Debian'
+            else '/usr/share/nginx/html'
+          }}
+
     - name: Install Nginx on Target Node
-      package:
+      ansible.builtin.package:
         name: nginx
         state: present
+        update_cache: "{{ ansible_os_family == 'Debian' }}"
 
     - name: Start Service
-      service:
+      ansible.builtin.service:
         name: nginx
         state: "{{ nginx_state }}"
-        enabled: yes
+        enabled: true
 
     - name: create assets directory
       ansible.builtin.file:
-        path: /usr/share/nginx/html/assets
+        path: "{{ nginx_html_root }}/assets"
         state: directory
 
-    - name: copy index file 
+    - name: copy index file
       ansible.builtin.template:
         src: index.html.j2
-        dest: /usr/share/nginx/html/index.html
+        dest: "{{ nginx_html_root }}/index.html"
 
-    - name: copy js file 
+    - name: copy js file
       ansible.builtin.copy:
-        src: ../nginx-artefacts/assets/app.js 
-        dest: /usr/share/nginx/html/assets/app.js
+        src: ../nginx-artefacts/assets/app.js
+        dest: "{{ nginx_html_root }}/assets/app.js"
 
     - name: copy css file
       ansible.builtin.copy:
-        src: ../nginx-artefacts/assets/styles.css 
-        dest: /usr/share/nginx/html/assets/styles.css
-
-
+        src: ../nginx-artefacts/assets/styles.css
+        dest: "{{ nginx_html_root }}/assets/styles.css"

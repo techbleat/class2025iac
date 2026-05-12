@@ -3,7 +3,7 @@ name: Ansible Deploy (Web=Nginx, App=Java)
 on:
   workflow_dispatch: {}
   push:
-   branches: ["nginx"]
+    branches: ["nginx"]
 
 jobs:
   run-ansible:
@@ -13,18 +13,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-
-
-      - name: Check If  Ansible is Available By Default
+      - name: Install Ansible
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ansible
           ansible --version
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > key.pem
-          chmod 600 key.pem
+
+      - name: Write SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > MasterClass2025.pem
+          chmod 600 MasterClass2025.pem
+
+      - name: Prepare inventory (optional repo Variables override committed hosts.ini)
+        env:
+          AM: ${{ vars.WEB_AMAZON_PUBLIC_IP }}
+          UB: ${{ vars.WEB_UBUNTU_PUBLIC_IP }}
+        run: |
+          if [ -n "$AM" ] && [ -n "$UB" ]; then
+            printf '%s\n' "[web_amazon]" "$AM" "" "[web_ubuntu]" "$UB" "" "[web:children]" "web_amazon" "web_ubuntu" > inventory/hosts.ci.ini
+            echo "Using inventory from Actions Variables (WEB_*_PUBLIC_IP)."
+          else
+            echo "Using committed inventory/hosts.ini (or hosts.auto.ini if present)."
+          fi
 
       - name: Run playbook
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
-          
         run: |
-          ls -ltr
-          ansible-playbook -i inventory/hosts.ini playbook/install.yml  
+          INV="inventory/hosts.ini"
+          if [ -f inventory/hosts.auto.ini ]; then INV="inventory/hosts.auto.ini"; fi
+          if [ -f inventory/hosts.ci.ini ]; then INV="inventory/hosts.ci.ini"; fi
+          echo "Inventory: $INV"
+          ansible-playbook -i "$INV" playbook/install.yml

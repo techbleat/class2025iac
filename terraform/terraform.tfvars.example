@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars (gitignored). Key pair name must match EC2 (same as your .pem).
+# aws_region    = "eu-west-1"
+# instance_type = "t3.micro"
+key_name = "MasterClass2025"
+
+# Optional: lock SSH to your IP only (replace with your public IP)
+# allowed_ssh_cidr = "203.0.113.50/32"
